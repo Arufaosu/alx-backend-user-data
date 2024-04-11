@@ -1,8 +1,13 @@
 #!/usr/bin/env python3
 """filter logger"""
 import re
+import csv
 import logging
+import mysql.connector
+import os
 from typing import List
+
+PII_FIELDS = ('name', 'email', 'phone', 'ssn', 'password')
 
 
 class RedactingFormatter(logging.Formatter):
@@ -33,3 +38,29 @@ def filter_datum(fields: List[str], redaction: str, message: str, separator: str
                          f'{f}={redaction}{separator}', obf_msg)
     return obf_msg
 
+def get_logger() -> logging.Logger:
+    """return a logging.Logger object"""
+
+    logger = logging.getLogger('user_data')
+
+    logger.setLevel(logging.INFO)
+
+    stream_handler = logging.StreamHandler()
+
+    stream_handler.setFormatter(RedactingFormatter())
+
+    logger.addHandler(stream_handler)
+
+    return logger
+
+def get_db() -> mysql.connector.connection.MySQLConnection:
+    """returns a MySQLConnection object"""
+
+    connection = mysql.connector.connect(
+            host=os.environ.get('PERSONAL_DATA_DB_HOST', 'localhost'),
+            user=os.environ.get('PERSONAL_DATA_DB_USERNAME', 'root'),
+            password=os.environ.get('PERSONAL_DATA_DB_PASSWORD', ''),
+            database=os.environ.get('PERSONAL_DATA_DB_NAME')
+            )
+
+    return connection
