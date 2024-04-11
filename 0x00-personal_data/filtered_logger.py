@@ -30,13 +30,17 @@ class RedactingFormatter(logging.Formatter):
         record.msg = msg
         return super().format(record)
 
-def filter_datum(fields: List[str], redaction: str, message: str, separator: str) -> str:
+
+def filter_datum(
+        fields: List[str], redaction: str, message: str,
+        separator: str) -> str:
     """returns the messages"""
     obf_msg = message
     for f in fields:
         obf_msg = re.sub(r'{}=.*?{}'.format(f, separator),
                          f'{f}={redaction}{separator}', obf_msg)
     return obf_msg
+
 
 def get_logger() -> logging.Logger:
     """return a logging.Logger object"""
@@ -52,6 +56,7 @@ def get_logger() -> logging.Logger:
     logger.addHandler(stream_handler)
 
     return logger
+
 
 def get_db() -> mysql.connector.connection.MySQLConnection:
     """returns a MySQLConnection object"""
