@@ -6,7 +6,8 @@ from typing import List
 
 
 class RedactingFormatter(logging.Formatter):
-    """redacting formatter"""
+    """ Redacting Formatter class
+        """
 
     REDACTION = "***"
     FORMAT = "[HOLBERTON] %(name)s %(levelname)s %(asctime)-15s: %(message)s"
