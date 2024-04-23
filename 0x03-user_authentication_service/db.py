@@ -44,8 +44,7 @@ class DB:
     def check_keys(kwargs: Dict) -> None:
         """Check kwargs keys are valid User attributes"""
 
-        valid_keys = ['id', 'email', 'hashed_password',
-                      'session_id', 'reset_token']
+        valid_keys = User.__table__.columns.keys()
 
         for key in kwargs.keys():
 
@@ -55,9 +54,9 @@ class DB:
     def find_user_by(self, **kwargs) -> User:
         """Find and return the first user"""
 
-        user = self._session.query(User).filter_by(**kwargs).first()
-
         self.check_keys(kwargs)
+
+        user = self._session.query(User).filter_by(**kwargs).first()
 
         if not user:
             raise NoResultFound
@@ -67,15 +66,14 @@ class DB:
     def update_user(self, user_id: int, **kwargs) -> None:
         """Update the user’s attributes"""
 
-        user = self.find_user_by(id=user_id)
-
         try:
             self.check_keys(kwargs)
         except InvalidRequestError:
             raise ValueError
 
+        user = self.find_user_by(id=user_id)
+
         for key, value in kwargs.items():
             setattr(user, key, value)
 
         self._session.commit()
-
