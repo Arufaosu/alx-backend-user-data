@@ -85,6 +85,17 @@ class Auth:
 
         return reset_token
 
+    def valid_reset_token(self, email: str, reset_token: str) -> None:
+        """Check that the reset_token is valid"""
+
+        try:
+            user = self._db.find_user_by(email=email)
+        except NoResultFound:
+            raise ValueError
+
+        if reset_token != user.reset_token:
+            raise ValueError
+
     def update_password(self, reset_token: str, password: str) -> None:
         """Update the user's password"""
 

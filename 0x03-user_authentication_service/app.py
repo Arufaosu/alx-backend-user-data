@@ -7,13 +7,15 @@ from flask import (abort, Flask, jsonify, make_response,
 
 app = Flask(__name__)
 
+app.url_map.strict_slashes = False
+
 AUTH = Auth()
 
 
 @app.route('/')
 def index():
     """root"""
-    return jsonify({'message': 'Bienvenue'})
+    return make_response(jsonify({'message': 'Bienvenue'}))
 
 @app.route('/users/', methods=['POST'])
 def users():
@@ -107,10 +109,12 @@ def update_password():
     password = request.form.get('password')
     reset_token = request.form.get('reset_token')
 
-    if not reset_token:
+    if not email or not reset_token or not password:
         abort(403)
 
     try:
+        AUTH.valid_reset_token(email, reset_token)
+
         AUTH.update_password(reset_token, password)
     except ValueError:
         abort(403)
